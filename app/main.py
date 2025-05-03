@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -5,11 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.stream_chat import router as stream_chat_router
 from app.routes.history import router as history_router
 
+# Import LightRAG initialization
+from app.rag.lightrag_init import initialize_rag, insert_data
+
 # --- FastAPI Application Setup ---
 app = FastAPI(
-    title="Mock Embed API (Manual Parse + History + Aligned SSE)",
-    description="Mock API simulating responses, storing history, aligning SSE format. Handles stringified JSON body.",
-    version="0.5.0" # Bump version
+    title="RAG-Powered Embed API",
+    description="API using LightRAG for responses, with Supabase for history storage and SSE streaming.",
+    version="0.6.0" # Bump version
 )
 
 app.add_middleware(
@@ -20,7 +24,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Initialize LightRAG
+try:
+    # Initialize RAG system and make it available to the app
+    rag = asyncio.run(initialize_rag())
+
+    # TODO: add scraper
+    # asyncio.run(insert_data(rag, "www.alphabase.co/combined.txt"))
+
+    app.state.rag = rag
+
+    # print(rag.query("What is Google"))
+    print("✅ LightRAG initialized successfully")
+except Exception as e:
+    print(f"❌ Error initializing LightRAG: {str(e)}")
+    # Still create the app but without RAG functionality
+    app.state.rag = None
+
 # Include routers from modular files
 app.include_router(stream_chat_router)
 app.include_router(history_router)
-

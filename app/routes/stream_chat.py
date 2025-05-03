@@ -1,20 +1,21 @@
 import asyncio
 import json
 import uuid
-import random
 from typing import Dict, Any
-from fastapi import APIRouter, Path, Body, HTTPException, status
+from fastapi import APIRouter, Path, Body, HTTPException, status, Request
 from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 
 from app.types.types import StreamChatRequest
 from app.utils.utils import format_sse_chunk
 from app.utils.supabase import save_message
+from app.rag.lightrag_init import query_rag, stream_query_rag
 
 router = APIRouter()
 
 @router.post("/embed/{embed_id}/stream-chat")
-async def stream_chat_mock_aligned(
+async def stream_chat_rag(
+    request: Request,
     embed_id: str = Path(..., title="The ID of the embed configuration"),
     raw_body: str = Body(...)
 ):
@@ -45,30 +46,25 @@ async def stream_chat_mock_aligned(
     await save_message(session_id, user_message_entry)
     print(f"Saved user message for session {session_id} with UUID: {user_message_uuid}")
 
-    # --- Simulate Backend Logic & Determine Response ---
-    mock_chat_mode = random.choice(["query", "chat"])
-    mock_streaming_enabled = random.choice([True, False])
-    mock_has_embeddings = random.choice([True, True, False])
-    mock_workspace_slug = f"ws_{embed_id}"
-    print(f"Simulating: chat_mode='{mock_chat_mode}', streaming={mock_streaming_enabled}, has_embeddings={mock_has_embeddings}")
-
+    # --- Check if RAG is initialized ---
+    rag = request.app.state.rag
     assistant_response_text = None
     early_exit_data = None # Store data for early exit chunks
-    mock_sources = []
-
+    sources = []
+    
     # Handle Early Exits
-    if mock_chat_mode == "query" and not mock_has_embeddings:
-        print("Simulating empty workspace in query mode exit.")
+    if rag is None:
+        print("Error: LightRAG not initialized")
         early_exit_data = {
             "uuid": str(uuid.uuid4()),
             "type": "textResponse",
-            "textResponse": "I don't have any data to work with. Please add documents to this workspace.",
+            "textResponse": "I'm sorry, the RAG system is currently unavailable. Please try again later.",
             "sources": [],
             "close": True,
-            "error": False
+            "error": True
         }
-    elif mock_chat_mode == "query" and "help" in user_message_text.lower():
-        print("Simulating help request in query mode exit.")
+    elif "help" in user_message_text.lower():
+        print("Processing help request")
         early_exit_data = {
             "uuid": str(uuid.uuid4()),
             "type": "textResponse",
@@ -76,17 +72,6 @@ async def stream_chat_mock_aligned(
             "sources": [],
             "close": True,
             "error": False
-        }
-    elif mock_chat_mode == "query" and "error" in user_message_text.lower():
-        print("Simulating error in query mode exit.")
-        early_exit_data = {
-            "uuid": str(uuid.uuid4()),
-            "type": "textResponse",
-            "textResponse": None,
-            "sources": [],
-            "close": True,
-            "error": True,
-            "errorMessage": "An error occurred while processing your request."
         }
     
     # If we have early exit data, return it as a non-streaming response
@@ -111,23 +96,36 @@ async def stream_chat_mock_aligned(
         })
     
     # --- Main Chat Flow ---
-    # Generate a mock response
-    if "document" in user_message_text.lower() or "pdf" in user_message_text.lower():
-        assistant_response_text = "I found several documents in the workspace. The main topics include project planning, technical specifications, and user feedback. Would you like me to summarize any specific document?"
-        # Add mock sources for document-related queries
-        mock_sources = [
-            {"text": "Project planning document outlines timeline and milestones.", "title": "Project_Plan.pdf", "url": None},
-            {"text": "Technical specifications detail system architecture and components.", "title": "Tech_Specs.docx", "url": None}
-        ]
-    elif "help" in user_message_text.lower():
-        assistant_response_text = "I'm an AI assistant designed to help with your questions. I can provide information, assist with tasks, or engage in conversation. How can I help you today?"
-    elif "weather" in user_message_text.lower():
-        assistant_response_text = "I don't have access to real-time weather data. You might want to check a weather service or website for the most current information."
-    elif "hello" in user_message_text.lower() or "hi" in user_message_text.lower():
-        assistant_response_text = "Hello! How can I assist you today? I'm ready to help with any questions you might have."
-    else:
-        # Default response for other queries
-        assistant_response_text = "I understand you're asking about " + user_message_text[:20] + "... This is a simulated response as I'm operating in mock mode. In a real environment, I would provide relevant information based on your query and available knowledge."
+    # If no early exit, prepare for streaming from the RAG system 
+    # TODO: WTF does this mean ^
+    if not early_exit_data:
+        try:
+            print(f"Querying LightRAG with: {user_message_text}")
+            
+            # For non-streaming response, we still need to get sources and save a complete message
+            # Get a non-streaming response to extract sources and save to history
+            rag_response = query_rag(rag, user_message_text)
+            
+            # Extract sources if available
+            if hasattr(rag_response, 'sources') and rag_response.sources:
+                for source in rag_response.sources:
+                    sources.append({
+                        "text": source.text[:200] + "...",  # Truncate long source texts
+                        "title": source.metadata.get("title", "Document"),
+                        "url": source.metadata.get("url", None)
+                    })
+            
+            # Set the complete response text for history saving
+            if isinstance(rag_response, str):
+                assistant_response_text = rag_response
+            else:
+                assistant_response_text = str(rag_response)
+                
+            print(f"Got complete response from LightRAG for history: {assistant_response_text[:100]}...")
+            
+        except Exception as e:
+            print(f"Error querying RAG: {str(e)}")
+            assistant_response_text = f"I encountered an error while processing your query. Please try again or rephrase your question. Error: {str(e)}"
     
     # Create a UUID for the assistant message
     assistant_message_uuid = str(uuid.uuid4())
@@ -140,38 +138,70 @@ async def stream_chat_mock_aligned(
     print(f"Saved assistant response for session {session_id} (streaming) with UUID: {assistant_message_uuid}")
 
     # Define the generator for streaming
-    async def mock_stream_generator_aligned():
+    async def rag_stream_generator():
         # 1. Start chunk - use the same UUID as the assistant message for consistency
         start_data = {"uuid": assistant_message_uuid, "type": "start", "error": False, "sources": [], "textResponse": None, "close": False}
         yield format_sse_chunk(start_data)
         await asyncio.sleep(0.2)
 
-        # 2. Text chunks
-        words = assistant_response_text.split()
-        for i, word in enumerate(words):
-            text_chunk_data = {
-                "uuid": assistant_message_uuid, # Use the same UUID as the assistant message for consistency
+        # 2. Stream text chunks directly from LightRAG
+        accumulated_text = ""
+        try:
+            async for chunk in stream_query_rag(rag, user_message_text):
+                # Handle different types of chunks
+                if isinstance(chunk, str):
+                    chunk_text = chunk
+                else:
+                    # If it's an object with a specific structure, extract the text
+                    chunk_text = str(chunk)
+                
+                accumulated_text += chunk_text
+                
+                text_chunk_data = {
+                    "uuid": assistant_message_uuid,
+                    "type": "textResponseChunk",
+                    "textResponse": chunk_text,
+                    "sources": [],
+                    "close": False,
+                    "error": False,
+                }
+                yield format_sse_chunk(text_chunk_data)
+        except Exception as e:
+            print(f"Error during streaming: {str(e)}")
+            error_chunk = {
+                "uuid": assistant_message_uuid,
                 "type": "textResponseChunk",
-                "textResponse": f"{word} " if i < len(words) - 1 else word,
-                "sources": [], # Sources usually sent at end
+                "textResponse": f" [Error during streaming: {str(e)}]",
+                "sources": [],
                 "close": False,
-                "error": False, # Explicitly false
+                "error": True,
             }
-            yield format_sse_chunk(text_chunk_data)
-            await asyncio.sleep(0.08)
+            yield format_sse_chunk(error_chunk)
+            
+            # If we had an error during streaming but already got a complete response earlier,
+            # use that instead of the accumulated text which might be incomplete
+            if not accumulated_text and assistant_response_text:
+                accumulated_text = assistant_response_text
 
         # 3. Complete chunk
         complete_data = {
-            "uuid": assistant_message_uuid, # Use the same UUID as the assistant message for consistency
-            "type": "complete", # Use 'complete' type for stream end
-            "textResponse": None, # No specific text for complete chunk
-            "sources": mock_sources,
+            "uuid": assistant_message_uuid,
+            "type": "complete",
+            "textResponse": None,
+            "sources": sources,
             "close": True,
-            "error": False, # Explicitly false
+            "error": False,
         }
         yield format_sse_chunk(complete_data)
-        print(f"Finished streaming mock response for embed_id: {embed_id}, session: {session_id}")
+        print(f"Finished streaming RAG response for embed_id: {embed_id}, session: {session_id}")
+        
+        # If the accumulated text differs from what we saved to history,
+        # update the history with the actual streamed text
+        if accumulated_text and accumulated_text != assistant_response_text:
+            print("Updating history with actual streamed text")
+            updated_message = {"role": "assistant", "content": accumulated_text, "uuid": assistant_message_uuid}
+            await save_message(session_id, updated_message, update=True)
 
-    return StreamingResponse(mock_stream_generator_aligned(), media_type="text/event-stream", headers={
+    return StreamingResponse(rag_stream_generator(), media_type="text/event-stream", headers={
         "Cache-Control": "no-cache", "Connection": "keep-alive", "Access-Control-Allow-Origin": "*",
     })

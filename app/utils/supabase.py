@@ -18,13 +18,14 @@ supabase: Client = create_client(supabase_url, supabase_key)
 # Table name for chat history
 CHAT_HISTORY_TABLE = "chat_histories"
 
-async def save_message(session_id: str, message: Dict[str, Any]) -> Dict[str, Any]:
+async def save_message(session_id: str, message: Dict[str, Any], update: bool = False) -> Dict[str, Any]:
     """
     Save a message to the chat history in Supabase
     
     Args:
         session_id: The session ID
         message: The message to save
+        update: If True, update an existing message instead of inserting a new one
         
     Returns:
         The saved message with Supabase metadata
@@ -38,8 +39,16 @@ async def save_message(session_id: str, message: Dict[str, Any]) -> Dict[str, An
         "uuid": message["uuid"]
     }
     
-    # Insert the message into Supabase
-    result = supabase.table(CHAT_HISTORY_TABLE).insert(data).execute()
+    if update:
+        # Update the existing message with the same UUID
+        result = supabase.table(CHAT_HISTORY_TABLE)\
+            .update(data)\
+            .eq("session_id", session_id)\
+            .eq("uuid", message["uuid"])\
+            .execute()
+    else:
+        # Insert a new message
+        result = supabase.table(CHAT_HISTORY_TABLE).insert(data).execute()
     
     if len(result.data) == 0:
         raise Exception("Failed to save message to Supabase")

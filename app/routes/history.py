@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Path, Response, status
+from fastapi import APIRouter, Path, Response, status, Request
 
 from app.types.types import HistoryResponse, ChatMessage
 from app.utils.supabase import get_session_history, delete_session_history
@@ -7,10 +7,12 @@ router = APIRouter()
 
 @router.get("/embed/{embed_id}/{session_id}", response_model=HistoryResponse)
 async def get_chat_history_mock(
+    request: Request,
     embed_id: str = Path(..., title="The ID of the embed configuration"),
     session_id: str = Path(..., title="The specific session ID")
 ):
-    print(f"Received get history request for embed_id: {embed_id}, session_id: {session_id}")
+    frontend_url = request.headers.get("origin") or request.headers.get("referer")
+    print(f"Received get history request for embed_id: {embed_id}, session_id: {session_id} from {frontend_url}")
     
     # Get session history from Supabase
     session_history_dicts = await get_session_history(session_id)

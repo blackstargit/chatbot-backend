@@ -4,3 +4,16 @@ pydantic
 python-dotenv
 supabase
 httpx
+wcwidth
+
+# LightRAG and dependencies
+lightrag-hku[api]
+llama-index
+llama-index-llms-google-genai
+nest-asyncio
+google-generativeai
+llama_index.embeddings.google_genai
+
+# Document processing (if needed)
+pymupdf
+python-docx
