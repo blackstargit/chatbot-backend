@@ -1,3 +1,4 @@
+# Core API requirements
 fastapi
 uvicorn
 pydantic
@@ -17,3 +18,11 @@ llama_index.embeddings.google_genai
 # Document processing (if needed)
 pymupdf
 python-docx
+
+# scraper
+requests 
+beautifulsoup4 
+lxml 
+tqdm
+python-multipart
+

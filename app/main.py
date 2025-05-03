@@ -7,7 +7,7 @@ from app.routes.stream_chat import router as stream_chat_router
 from app.routes.history import router as history_router
 
 # Import LightRAG initialization
-from app.rag.lightrag_init import initialize_rag, insert_data
+from app.rag.lightrag_init import initialize_rag
 
 # --- FastAPI Application Setup ---
 app = FastAPI(
@@ -24,17 +24,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Initialize application state
+app.state.frontend_url = None
+app.state.rag = None
+
 # Initialize LightRAG
 try:
-    # Initialize RAG system and make it available to the app
     rag = asyncio.run(initialize_rag())
-
-    # TODO: add scraper
-    # asyncio.run(insert_data(rag, "www.alphabase.co/combined.txt"))
-
     app.state.rag = rag
 
-    # print(rag.query("What is Google"))
     print("✅ LightRAG initialized successfully")
 except Exception as e:
     print(f"❌ Error initializing LightRAG: {str(e)}")
