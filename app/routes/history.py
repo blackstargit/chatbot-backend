@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Path, Response, status
 
 from app.types.types import HistoryResponse, ChatMessage
-from app.utils.utils import mock_chat_histories
+from app.utils.supabase import get_session_history, delete_session_history
 
 router = APIRouter()
 
@@ -11,8 +11,12 @@ async def get_chat_history_mock(
     session_id: str = Path(..., title="The specific session ID")
 ):
     print(f"Received get history request for embed_id: {embed_id}, session_id: {session_id}")
-    session_history_dicts = mock_chat_histories.get(session_id, [])
+    
+    # Get session history from Supabase
+    session_history_dicts = await get_session_history(session_id)
     print(f"Found {len(session_history_dicts)} messages in history for session {session_id}")
+    
+    # Convert to Pydantic models
     session_history_models = [ChatMessage(**msg) for msg in session_history_dicts]
     return HistoryResponse(history=session_history_models)
 
@@ -23,9 +27,13 @@ async def delete_chat_history_mock(
     session_id: str = Path(..., title="The specific session ID to delete")
 ):
     print(f"Received delete history request for embed_id: {embed_id}, session_id: {session_id}")
-    removed_history = mock_chat_histories.pop(session_id, None)
-    if removed_history is not None:
+    
+    # Delete session history from Supabase
+    deleted = await delete_session_history(session_id)
+    
+    if deleted:
         print(f"Deleted history for session {session_id}")
     else:
         print(f"No history found to delete for session {session_id}")
+        
     return Response(status_code=status.HTTP_200_OK, content=None)

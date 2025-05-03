@@ -8,7 +8,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 
 from app.types.types import StreamChatRequest
-from app.utils.utils import format_sse_chunk, mock_chat_histories
+from app.utils.utils import format_sse_chunk
+from app.utils.supabase import save_message
 
 router = APIRouter()
 
@@ -39,7 +40,9 @@ async def stream_chat_mock_aligned(
 
     user_message_uuid = str(uuid.uuid4())
     user_message_entry = {"role": "user", "content": user_message_text, "uuid": user_message_uuid}
-    mock_chat_histories[session_id].append(user_message_entry)
+    
+    # Save user message to Supabase
+    await save_message(session_id, user_message_entry)
     print(f"Saved user message for session {session_id} with UUID: {user_message_uuid}")
 
     # --- Simulate Backend Logic & Determine Response ---
@@ -94,7 +97,9 @@ async def stream_chat_mock_aligned(
         # If there's a valid text response, save it to history
         if assistant_message_text:
             assistant_message_entry = {"role": "assistant", "content": assistant_message_text, "uuid": assistant_message_uuid}
-            mock_chat_histories[session_id].append(assistant_message_entry)
+            
+            # Save assistant message to Supabase
+            await save_message(session_id, assistant_message_entry)
             print(f"Saved assistant response for session {session_id} (early exit) with UUID: {assistant_message_uuid}")
         
         # Return a single SSE chunk with the early exit data
@@ -129,7 +134,9 @@ async def stream_chat_mock_aligned(
     
     # Save the assistant message to history
     assistant_message_entry = {"role": "assistant", "content": assistant_response_text, "uuid": assistant_message_uuid}
-    mock_chat_histories[session_id].append(assistant_message_entry)
+    
+    # Save assistant message to Supabase
+    await save_message(session_id, assistant_message_entry)
     print(f"Saved assistant response for session {session_id} (streaming) with UUID: {assistant_message_uuid}")
 
     # Define the generator for streaming

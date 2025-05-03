@@ -24,8 +24,3 @@ app.add_middleware(
 app.include_router(stream_chat_router)
 app.include_router(history_router)
 
-# --- Uvicorn Runner ---
-if __name__ == "__main__":
-    import uvicorn
-    print("Starting API server with AnythingLLM Embed API Clone on http://127.0.0.1:8000")
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

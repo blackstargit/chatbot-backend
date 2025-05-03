@@ -1,9 +1,5 @@
 import json
-from typing import Dict, List, Any
-from collections import defaultdict
-
-# --- In-Memory Storage for Mock History ---
-mock_chat_histories: Dict[str, List[Dict[str, str]]] = defaultdict(list)
+from typing import Dict, Any
 
 # --- Helper to format response chunks ---
 def format_sse_chunk(data: Dict[str, Any]) -> str:
