@@ -6,6 +6,7 @@ python-dotenv
 supabase
 httpx
 wcwidth
+parse
 
 # LightRAG and dependencies
 lightrag-hku[api]
