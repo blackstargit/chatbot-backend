@@ -1,0 +1,45 @@
+# Version control
+.git
+.gitignore
+
+# Python environments
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache
+
+# Editor directories and files
+.idea
+.vscode
+*.swp
+*.swo
+
+# Local environment files
+.env
+.env.local
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Database files (mounted as volume)
+# db/
+
+# Logs
+*.log
+
+# Documentation
+README.md
+LICENSE
+
+# Temporary files
+.DS_Store
+
+db/
+rag_data
