@@ -3,8 +3,8 @@ from typing import Dict, Any
 import os
 from urllib.parse import urlparse
 
-from app.scraper.scrape_website import scrape_site_from_sitemap
-from app.rag.lightrag_init import insert_data
+from app.utils.scrape_website import scrape_site_from_sitemap
+from app.utils.lightrag_init import insert_data
 
 # --- Helper to format response chunks ---
 def format_sse_chunk(data: Dict[str, Any]) -> str:
@@ -42,7 +42,7 @@ async def process_frontend_url(app, frontend_url):
         combined_file = f"{folder}/combined.txt"
         if os.path.exists(combined_file):
             print(f"Inserting data from {combined_file}")
-            await insert_data(app.state.rag, combined_file)
+            insert_data(app.state.rag, combined_file)
             print("Data insertion complete")
         else:
             print(f"Combined file not found: {combined_file}")

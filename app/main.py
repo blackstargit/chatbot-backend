@@ -6,15 +6,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.stream_chat import router as stream_chat_router
 from app.routes.history import router as history_router
 from app.routes.widget import router as widget_router
+from app.routes.ingestion import router as ingestion_router
+from app.routes.query import router as query_router
 
 # Import LightRAG initialization
-from app.rag.lightrag_init import initialize_rag
+from app.utils.lightrag_init import initialize_rag
 
 # --- FastAPI Application Setup ---
 app = FastAPI(
     title="RAG-Powered Embed API",
     description="API using LightRAG for responses, with Supabase for history storage and SSE streaming.",
-    version="0.6.0" # Bump version
+    version="0.6.0"
 )
 
 app.add_middleware(
@@ -42,3 +44,5 @@ except Exception as e:
 app.include_router(stream_chat_router)
 app.include_router(history_router)
 app.include_router(widget_router)
+app.include_router(ingestion_router)
+app.include_router(query_router)

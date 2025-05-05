@@ -1,7 +1,6 @@
 import asyncio
 import json
 import uuid
-from typing import Dict, Any
 from fastapi import APIRouter, Path, Body, HTTPException, status, Request
 from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
@@ -9,7 +8,7 @@ from pydantic import ValidationError
 from app.types.types import StreamChatRequest
 from app.utils.utils import format_sse_chunk
 from app.utils.supabase import save_message
-from app.rag.lightrag_init import query_rag, stream_query_rag
+from app.utils.lightrag_init import query_rag, stream_query_rag
 
 router = APIRouter()
 

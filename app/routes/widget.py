@@ -1,8 +1,5 @@
-from fastapi import APIRouter, Path, Response, status, Request
+from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
-
-from app.types.types import HistoryResponse, ChatMessage
-from app.utils.supabase import get_session_history, delete_session_history
 
 router = APIRouter()
 

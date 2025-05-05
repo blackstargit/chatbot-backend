@@ -40,9 +40,9 @@ def create_combined_file(folder):
     print(f"\n📚 Combined all text into: {combined_path}")
 
 # --------- Main Scraper -------------
-def scrape_site_from_sitemap(base_url):
+def scrape_site_from_sitemap(base_url: str):
     parsed_url = urlparse(base_url)
-    domain_folder = parsed_url.netloc.replace(":", "_")
+    domain_folder = f'db/{parsed_url.netloc.replace(":", "_")}'
 
     os.makedirs(domain_folder, exist_ok=True)
 

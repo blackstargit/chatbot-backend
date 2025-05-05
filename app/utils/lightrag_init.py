@@ -44,7 +44,7 @@ async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwar
 
 async def initialize_rag():
     rag = LightRAG(
-        working_dir="./rag_data",
+        working_dir="./db/rag_data",
         llm_model_func=llm_model_func,
         embedding_func=EmbeddingFunc(
             # Google embeddings dimension
@@ -74,14 +74,38 @@ async def initialize_rag():
     return rag
 
 # Function to process files with proper error handling
-async def insert_data(rag, file_path):
+def insert_data(rag, file_path):
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             print(f"Processing file")
-            await rag.insert(f.read())
-            print(f"Successfully processed")
+            content = f.read()
+            
+            # Check if content is empty
+            if not content or content.strip() == "":
+                print("Error: Document content is empty")
+                return False
+                
+            # Print content length for debugging
+            print(f"Document content length: {len(content)} characters")
+            
+            # Add a try-except block specifically for the insert operation
+            try:
+                rag.insert(content)
+                print(f"Successfully processed")
+                return True
+            except ValueError as ve:
+                print(f"ValueError during RAG insert: {str(ve)}")
+                # This is likely the 'Set of Tasks/Futures is empty' error
+                if "Set of Tasks/Futures is empty" in str(ve):
+                    print("This error typically occurs when the entity extraction process can't find any content to process.")
+                    print("Check that your document has meaningful text that can be processed.")
+                return False
+            except Exception as insert_error:
+                print(f"Error during RAG insert: {str(insert_error)}")
+                return False
     except Exception as e:
-        print(f"Error processing file {str(e)}")
+        print(f"Error processing file: {str(e)}")
+        return False
         
 # Function to query the RAG system
 def query_rag(rag, query_text):
@@ -134,3 +158,9 @@ async def stream_query_rag(rag, query_text):
     except Exception as e:
         print(f"Error streaming query from RAG: {str(e)}")
         yield f"Error processing your query: {str(e)}"
+
+
+# rag = asyncio.run(initialize_rag())
+# insert_data(rag, "db/www.alphabase.co/combined.txt")
+
+# print(query_rag(rag, "What is alphabase?"))
