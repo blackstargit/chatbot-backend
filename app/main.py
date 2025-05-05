@@ -1,4 +1,5 @@
 import asyncio
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -11,6 +12,10 @@ from app.routes.query import router as query_router
 
 # Import LightRAG initialization
 from app.utils.lightrag_init import initialize_rag
+
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
 
 # --- FastAPI Application Setup ---
 app = FastAPI(
@@ -46,3 +51,7 @@ app.include_router(history_router)
 app.include_router(widget_router)
 app.include_router(ingestion_router)
 app.include_router(query_router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

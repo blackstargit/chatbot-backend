@@ -43,8 +43,13 @@ async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwar
         raise
 
 async def initialize_rag():
+    # Ensure the working directory exists
+    import os
+    working_dir = os.environ.get("RAG_WORKING_DIR", "./db/rag_data")
+    os.makedirs(working_dir, exist_ok=True)
+    
     rag = LightRAG(
-        working_dir="./db/rag_data",
+        working_dir=working_dir,
         llm_model_func=llm_model_func,
         embedding_func=EmbeddingFunc(
             # Google embeddings dimension
@@ -58,6 +63,7 @@ async def initialize_rag():
                 )
             ),
         ),
+        # For production, consider using PostgreSQL-based storage
         # kv_storage="PGKVStorage",
         # doc_status_storage="PGDocStatusStorage",
         # graph_storage="PGGraphStorage",
@@ -158,9 +164,3 @@ async def stream_query_rag(rag, query_text):
     except Exception as e:
         print(f"Error streaming query from RAG: {str(e)}")
         yield f"Error processing your query: {str(e)}"
-
-
-# rag = asyncio.run(initialize_rag())
-# insert_data(rag, "db/www.alphabase.co/combined.txt")
-
-# print(query_rag(rag, "What is alphabase?"))
