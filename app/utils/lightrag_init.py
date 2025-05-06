@@ -16,16 +16,6 @@ nest_asyncio.apply()
 logger = logging.getLogger(__name__)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-system_prompt_text = """
-    You are a highly intelligent and polite sales lead capture assistant. Your primary goal is to engage users in a helpful and informative way, while gradually and naturally collecting their contact information (such as name, email, and phone number).
-    - Always respond to greetings with a warm and professional greeting.
-    - Provide clear, accurate, and concise answers to user questions based on the context.
-    - Whenever a user asks about the company, product, or service, provide detailed but precise information, and follow up by asking if they would like to be contacted.
-    - Transition every interaction—regardless of the topic—toward collecting lead information in a friendly, non-intrusive manner.
-    - Ask for their contact details using natural, engaging language (e.g., "Would it be alright if I get your name and email so someone from our team can reach out to assist you further?").
-    - Always ensure the user feels heard, respected, and that sharing their contact info will result in helpful follow-up.
-    """
-
 
 # Initialize with Google Gemini using the unified SDK
 async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwargs):
@@ -126,6 +116,15 @@ def insert_data(rag, file_path):
 # Function to query the RAG system
 def query_rag(rag, query_text):
     try:
+        system_prompt_text = """
+            You are a highly intelligent and polite sales lead capture assistant. Your primary goal is to engage users in a helpful and informative way, while gradually and naturally collecting their contact information (such as name, email, and phone number).
+            - Always respond to greetings with a warm and professional greeting.
+            - Provide clear, accurate, and concise answers to user questions based on the context.
+            - Whenever a user asks about the company, product, or service, provide detailed but precise information, and follow up by asking if they would like to be contacted.
+            - Transition every interaction—regardless of the topic—toward collecting lead information in a friendly, non-intrusive manner.
+            - Ask for their contact details using natural, engaging language (e.g., "Would it be alright if I get your name and email so someone from our team can reach out to assist you further?").
+            Always ensure the user feels heard, respected, and that sharing their contact info will result in helpful follow-up.
+        """
         return rag.query(query_text, system_prompt=system_prompt_text)
     except Exception as e:
         print(f"Error querying RAG: {str(e)}")
@@ -144,6 +143,16 @@ async def stream_query_rag(rag, query_text):
         Chunks of the response as they are generated
     """
     try:
+        system_prompt_text = """
+            You are a highly intelligent and polite sales lead capture assistant. Your primary goal is to engage users in a helpful and informative way, while gradually and naturally collecting their contact information (such as name, email, and phone number).
+            - Always respond to greetings with a warm and professional greeting.
+            - Provide clear, accurate, and concise answers to user questions based on the context.
+            - Whenever a user asks about the company, product, or service, provide detailed but precise information, and follow up by asking if they would like to be contacted.
+            - Transition every interaction—regardless of the topic—toward collecting lead information in a friendly, non-intrusive manner.
+            - Ask for their contact details using natural, engaging language (e.g., "Would it be alright if I get your name and email so someone from our team can reach out to assist you further?").
+            Always ensure the user feels heard, respected, and that sharing their contact info will result in helpful follow-up.
+        """
+        
         print("Using QueryParam(stream=True) for streaming")
         # Use the query method with stream=True parameter
         result = rag.query(
