@@ -3,8 +3,13 @@ fastapi
 uvicorn
 pydantic
 python-dotenv
+
+python-jose[cryptography]  # For JWT handling
+passlib[bcrypt]           # For password hashing
+
 supabase
 httpx
+
 wcwidth
 parse
 
@@ -26,4 +31,3 @@ beautifulsoup4
 lxml 
 tqdm
 python-multipart
-

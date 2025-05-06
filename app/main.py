@@ -10,6 +10,9 @@ from app.routes.widget import router as widget_router
 from app.routes.ingestion import router as ingestion_router
 from app.routes.query import router as query_router
 
+# Import Supabase client
+from app.utils.supabase import get_supabase_client
+
 # Import LightRAG initialization
 from app.utils.lightrag_init import initialize_rag
 
@@ -45,6 +48,19 @@ try:
 except Exception as e:
     print(f"❌ Error initializing LightRAG: {str(e)}")
 
+# Initialize Supabase tables if they don't exist
+@app.on_event("startup")
+async def initialize_supabase():
+    try:
+        supabase = await get_supabase_client()
+        
+        # Check if users table exists, if not create it
+        # Note: This is a simplified approach. In production, you would use proper migrations.
+        supabase.table("chat_histories").select("id").limit(1).execute()
+        print("✅ Supabase connection successful")
+    except Exception as e:
+        print(f"❌ Error connecting to Supabase: {str(e)}")
+
 
 app.include_router(stream_chat_router)
 app.include_router(history_router)
@@ -54,4 +70,4 @@ app.include_router(query_router)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", reload=True)

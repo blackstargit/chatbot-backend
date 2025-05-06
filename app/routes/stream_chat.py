@@ -1,9 +1,11 @@
 import asyncio
 import json
 import uuid
-from fastapi import APIRouter, Path, Body, HTTPException, status, Request
+from fastapi import APIRouter, Path, Body, HTTPException, status, Request, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
+
+from app.utils.auth import authenticate_request
 
 from app.types.types import StreamChatRequest
 from app.utils.utils import format_sse_chunk
@@ -16,7 +18,8 @@ router = APIRouter()
 async def stream_chat_rag(
     request: Request,
     embed_id: str = Path(..., title="The ID of the embed configuration"),
-    raw_body: str = Body(...)
+    raw_body: str = Body(...),
+    _auth: bool = Depends(authenticate_request)   # <-- Injected AUTH here
 ):
     request_uuid = str(uuid.uuid4()) + "1fd" # Unique ID for this request handling instance
     print(f"Request ID: {request_uuid}")
@@ -95,26 +98,20 @@ async def stream_chat_rag(
         })
     
     # --- Main Chat Flow ---
-    # If no early exit, prepare for streaming from the RAG system 
-    # TODO: WTF does this mean ^
     if not early_exit_data:
         try:
             print(f"Querying LightRAG with: {user_message_text}")
             
-            # For non-streaming response, we still need to get sources and save a complete message
-            # Get a non-streaming response to extract sources and save to history
             rag_response = query_rag(rag, user_message_text)
             
-            # Extract sources if available
             if hasattr(rag_response, 'sources') and rag_response.sources:
                 for source in rag_response.sources:
                     sources.append({
-                        "text": source.text[:200] + "...",  # Truncate long source texts
+                        "text": source.text[:200] + "...",
                         "title": source.metadata.get("title", "Document"),
                         "url": source.metadata.get("url", None)
                     })
             
-            # Set the complete response text for history saving
             if isinstance(rag_response, str):
                 assistant_response_text = rag_response
             else:
@@ -126,32 +123,24 @@ async def stream_chat_rag(
             print(f"Error querying RAG: {str(e)}")
             assistant_response_text = f"I encountered an error while processing your query. Please try again or rephrase your question. Error: {str(e)}"
     
-    # Create a UUID for the assistant message
     assistant_message_uuid = str(uuid.uuid4())
     
-    # Save the assistant message to history
     assistant_message_entry = {"role": "assistant", "content": assistant_response_text, "uuid": assistant_message_uuid}
     
-    # Save assistant message to Supabase
     await save_message(session_id, assistant_message_entry)
     print(f"Saved assistant response for session {session_id} (streaming) with UUID: {assistant_message_uuid}")
 
-    # Define the generator for streaming
     async def rag_stream_generator():
-        # 1. Start chunk - use the same UUID as the assistant message for consistency
         start_data = {"uuid": assistant_message_uuid, "type": "start", "error": False, "sources": [], "textResponse": None, "close": False}
         yield format_sse_chunk(start_data)
         await asyncio.sleep(0.2)
 
-        # 2. Stream text chunks directly from LightRAG
         accumulated_text = ""
         try:
             async for chunk in stream_query_rag(rag, user_message_text):
-                # Handle different types of chunks
                 if isinstance(chunk, str):
                     chunk_text = chunk
                 else:
-                    # If it's an object with a specific structure, extract the text
                     chunk_text = str(chunk)
                 
                 accumulated_text += chunk_text
@@ -177,12 +166,9 @@ async def stream_chat_rag(
             }
             yield format_sse_chunk(error_chunk)
             
-            # If we had an error during streaming but already got a complete response earlier,
-            # use that instead of the accumulated text which might be incomplete
             if not accumulated_text and assistant_response_text:
                 accumulated_text = assistant_response_text
 
-        # 3. Complete chunk
         complete_data = {
             "uuid": assistant_message_uuid,
             "type": "complete",
@@ -194,8 +180,6 @@ async def stream_chat_rag(
         yield format_sse_chunk(complete_data)
         print(f"Finished streaming RAG response for embed_id: {embed_id}, session: {session_id}")
         
-        # If the accumulated text differs from what we saved to history,
-        # update the history with the actual streamed text
         if accumulated_text and accumulated_text != assistant_response_text:
             print("Updating history with actual streamed text")
             updated_message = {"role": "assistant", "content": accumulated_text, "uuid": assistant_message_uuid}

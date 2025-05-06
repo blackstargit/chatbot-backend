@@ -16,6 +16,16 @@ nest_asyncio.apply()
 logger = logging.getLogger(__name__)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+system_prompt_text = """
+    You are a highly intelligent and polite sales lead capture assistant. Your primary goal is to engage users in a helpful and informative way, while gradually and naturally collecting their contact information (such as name, email, and phone number).
+    - Always respond to greetings with a warm and professional greeting.
+    - Provide clear, accurate, and concise answers to user questions based on the context.
+    - Whenever a user asks about the company, product, or service, provide detailed but precise information, and follow up by asking if they would like to be contacted.
+    - Transition every interaction—regardless of the topic—toward collecting lead information in a friendly, non-intrusive manner.
+    - Ask for their contact details using natural, engaging language (e.g., "Would it be alright if I get your name and email so someone from our team can reach out to assist you further?").
+    - Always ensure the user feels heard, respected, and that sharing their contact info will result in helpful follow-up.
+    """
+
 
 # Initialize with Google Gemini using the unified SDK
 async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwargs):
@@ -23,7 +33,7 @@ async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwar
         # Initialize GoogleGenerativeAI if not in kwargs
         if 'llm_instance' not in kwargs:
             llm_instance = GoogleGenAI(
-                model="gemini-1.5-flash",  # or "gemini-2.0-flash" if available
+                model="gemini-2.0-flash",  # or "gemini-2.0-flash" if available
                 api_key=GEMINI_API_KEY,
                 temperature=0.7,
             )
@@ -112,11 +122,11 @@ def insert_data(rag, file_path):
     except Exception as e:
         print(f"Error processing file: {str(e)}")
         return False
-        
+
 # Function to query the RAG system
 def query_rag(rag, query_text):
     try:
-        return rag.query(query_text)
+        return rag.query(query_text, system_prompt=system_prompt_text)
     except Exception as e:
         print(f"Error querying RAG: {str(e)}")
         return f"Error processing your query: {str(e)}"
@@ -138,29 +148,26 @@ async def stream_query_rag(rag, query_text):
         # Use the query method with stream=True parameter
         result = rag.query(
             query_text,
-            param=QueryParam(stream=True)
+            param=QueryParam(stream=True, mode="bypass"),
+            system_prompt=system_prompt_text
         )
         
-        # Check if the result is an async generator
-        if hasattr(result, '__aiter__'):
-            async for chunk in result:
+        # If it's not an async generator, it might be a synchronous iterable
+        # or just a regular result
+        if hasattr(result, '__iter__'):
+            print("Contains __iter__")
+            for chunk in result:
                 yield chunk
+                await asyncio.sleep(0.001)  # Small delay between chunks
         else:
-            # If it's not an async generator, it might be a synchronous iterable
-            # or just a regular result
-            if hasattr(result, '__iter__') and not isinstance(result, (str, dict)):
-                for chunk in result:
-                    yield chunk
-                    await asyncio.sleep(0.05)  # Small delay between chunks
-            else:
-                # If it's a regular result, simulate streaming by words
-                print("Fallback to simulated streaming by words")
-                result_str = str(result)
-                words = result_str.split()
-                
-                for word in words:
-                    yield word + " "
-                    await asyncio.sleep(0.05)  # Simulate streaming with small delay
+            # If it's a regular result, simulate streaming by words
+            print("Fallback to simulated streaming by words")
+            result_str = str(result)
+            words = result_str.split()
+            
+            for word in words:
+                yield word + " "
+                await asyncio.sleep(0.001)  # Simulate streaming with small delay
     except Exception as e:
         print(f"Error streaming query from RAG: {str(e)}")
         yield f"Error processing your query: {str(e)}"

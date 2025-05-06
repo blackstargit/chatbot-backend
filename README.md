@@ -26,6 +26,10 @@ This FastAPI application uses LightRAG for RAG capabilities and Supabase for dat
    - GEMINI_API_KEY
    - PORT (optional, defaults to 8000)
    - HOST (optional, defaults to 0.0.0.0)
+   - JWT_SECRET_KEY
+   - JWT_ALGORITHM
+   - TOKEN_EXPIRE_DAYS
+   - API_KEYS
 
 2. **Build and start the Docker container**
    ```

@@ -3,9 +3,11 @@ import asyncio
 from typing import Optional
 from urllib.parse import unquote
 
-from fastapi import APIRouter, Form, Request, UploadFile, File, HTTPException
+from fastapi import APIRouter, Form, Request, UploadFile, File, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from pydantic import HttpUrl
+
+from app.utils.auth import authenticate_request
 
 from app.utils.scrape_website import scrape_site_from_sitemap
 from app.utils.lightrag_init import insert_data
@@ -16,7 +18,7 @@ router = APIRouter()
 # ---------- 🚀 FastAPI Endpoint ----------
 
 @router.post("/ingest/file")
-async def ingest(request: Request, file: UploadFile = File(...)):
+async def ingest(request: Request, file: UploadFile = File(...), _auth: bool = Depends(authenticate_request)):
     file_bytes = await file.read()
     file_type = get_file_type(file.filename, file.content_type)
 
@@ -52,7 +54,7 @@ async def ingest(request: Request, file: UploadFile = File(...)):
 
 
 @router.post("/ingest/url")
-async def ingest(request: Request, url: str):
+async def ingest(request: Request, url: str, _auth: bool = Depends(authenticate_request)):
     url = unquote(url)
     folder = scrape_site_from_sitemap(url)
 
