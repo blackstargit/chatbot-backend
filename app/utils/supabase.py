@@ -2,6 +2,7 @@ import os
 from typing import Dict, List, Any, Optional
 from supabase import create_client, Client
 from dotenv import load_dotenv
+from app.utils.lead_capture import _detect_emails, _detect_phones, _detect_names
 
 # Load environment variables
 load_dotenv()
