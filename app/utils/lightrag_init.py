@@ -125,7 +125,8 @@ def query_rag(rag, query_text):
             - Ask for their contact details using natural, engaging language (e.g., "Would it be alright if I get your name and email so someone from our team can reach out to assist you further?").
             Always ensure the user feels heard, respected, and that sharing their contact info will result in helpful follow-up.
         """
-        return rag.query(query_text, system_prompt=system_prompt_text)
+        query = f"Please answer the following query according to the given system prompt: {query_text}"
+        return rag.query(query, system_prompt=system_prompt_text)
     except Exception as e:
         print(f"Error querying RAG: {str(e)}")
         return f"Error processing your query: {str(e)}"
