@@ -8,13 +8,13 @@ from app.utils.auth import authenticate_request
 
 router = APIRouter()
 
-rag = asyncio.run(initialize_rag())
 
 @router.get("/query")
 async def query(
     query: str,
     _auth: bool = Depends(authenticate_request)   # <-- Universal authenticator dependency
 ):
+    rag = asyncio.run(initialize_rag())
     if rag is None:
         return JSONResponse(content={"error": "LightRAG system is not initialized."}, status_code=503)
 
@@ -27,6 +27,7 @@ async def stream_query(
     query: str,
     _auth: bool = Depends(authenticate_request)   # <-- Universal authenticator dependency
 ):
+    rag = request.app.state.rag
     if rag is None:
         return JSONResponse(content={"error": "LightRAG system is not initialized."}, status_code=503)
 
