@@ -23,7 +23,7 @@ async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwar
         # Initialize GoogleGenerativeAI if not in kwargs
         if 'llm_instance' not in kwargs:
             llm_instance = GoogleGenAI(
-                model="gemini-2.0-flash",  # or "gemini-2.0-flash" if available
+                model="gemini-1.5-flash",  # or "gemini-2.0-flash" if available
                 api_key=GEMINI_API_KEY,
                 temperature=0.7,
             )

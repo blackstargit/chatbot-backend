@@ -14,7 +14,8 @@ from app.routes.query import router as query_router
 from app.utils.supabase import get_supabase_client
 
 # Import LightRAG initialization
-from app.utils.lightrag_init import initialize_rag
+from app.utils.lightrag_init import initialize_rag, insert_data
+from app.utils.scrape_website import scrape_site_from_sitemap
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -43,6 +44,10 @@ app.state.rag = None
 try:
     rag = asyncio.run(initialize_rag())
     app.state.rag = rag
+    
+    # Insert data from the combined.txt file
+    # scrape_site_from_sitemap("https://www.alphabase.co")
+    rag = asyncio.run(insert_data(rag, "./mock.txt"))
 
     print("✅ LightRAG initialized successfully")
 except Exception as e:
