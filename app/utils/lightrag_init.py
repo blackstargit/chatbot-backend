@@ -126,7 +126,11 @@ def query_rag(rag, query_text):
             Always ensure the user feels heard, respected, and that sharing their contact info will result in helpful follow-up.
         """
         query = f"Please answer the following query according to the given system prompt: {query_text}"
-        return rag.query(query, system_prompt=system_prompt_text)
+        return rag.query(
+            query, 
+            system_prompt=system_prompt_text, 
+            param=QueryParam(stream=True, mode="bypass")
+            )
     except Exception as e:
         print(f"Error querying RAG: {str(e)}")
         return f"Error processing your query: {str(e)}"
