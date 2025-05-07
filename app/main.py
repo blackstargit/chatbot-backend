@@ -47,7 +47,7 @@ try:
     
     # Insert data from the combined.txt file
     # scrape_site_from_sitemap("https://www.alphabase.co")
-    rag = asyncio.run(insert_data(rag, "./mock.txt"))
+    insert_data(rag, "./mock.txt")
 
     print("✅ LightRAG initialized successfully")
 except Exception as e:
