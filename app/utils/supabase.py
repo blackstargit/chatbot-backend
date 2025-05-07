@@ -80,7 +80,7 @@ async def save_message(session_id: str, message: Dict[str, Any], update: bool = 
             print(f"Lead info found in message {message['uuid']}: Name='{detected_name}', Email='{detected_email}', Phone='{detected_phone}'")
             try:
                 await _save_detected_lead_info(
-                    supabase_client,
+                    supabase,
                     session_id,
                     message["uuid"],
                     detected_name,
@@ -148,7 +148,7 @@ async def delete_session_history(session_id: str) -> bool:
     return True
 
 async def _save_detected_lead_info(
-    supabase_client: Any,
+    supabase_client: Client,
     session_id: str,
     message_uuid: str,
     detected_name: Optional[str],
