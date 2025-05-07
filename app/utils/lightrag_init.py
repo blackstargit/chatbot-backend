@@ -45,7 +45,7 @@ async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwar
 async def initialize_rag():
     # Ensure the working directory exists
     import os
-    working_dir = os.environ.get("RAG_WORKING_DIR", "./db/rag_data")
+    working_dir = os.environ.get("RAG_WORKING_DIR", "./rag_data")
     os.makedirs(working_dir, exist_ok=True)
     
     rag = LightRAG(

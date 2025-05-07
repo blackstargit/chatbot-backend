@@ -1,0 +1,292 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d9" for="edge" attr.name="file_path" attr.type="string"/>
+<key id="d8" for="edge" attr.name="source_id" attr.type="string"/>
+<key id="d7" for="edge" attr.name="keywords" attr.type="string"/>
+<key id="d6" for="edge" attr.name="description" attr.type="string"/>
+<key id="d5" for="edge" attr.name="weight" attr.type="double"/>
+<key id="d4" for="node" attr.name="file_path" attr.type="string"/>
+<key id="d3" for="node" attr.name="source_id" attr.type="string"/>
+<key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="entity_type" attr.type="string"/>
+<key id="d0" for="node" attr.name="entity_id" attr.type="string"/>
+<graph edgedefault="undirected"><node id="MIVIA HEp-2 Image dataset">
+  <data key="d0">MIVIA HEp-2 Image dataset</data>
+  <data key="d1">category</data>
+  <data key="d2">A dataset of 28 HEp-2 cell images, one per patient, used for cell image segmentation in the lab.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="MATLAB">
+  <data key="d0">MATLAB</data>
+  <data key="d1">organization</data>
+  <data key="d2">A software company that produces MATLAB, used in this lab for image processing tasks such as grayscale conversion.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Lab Instructor">
+  <data key="d0">Lab Instructor</data>
+  <data key="d1">person</data>
+  <data key="d2">The instructor who provided the image dataset and binary masks for reference in the lab.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Digital Image Processing Lab Report">
+  <data key="d0">Digital Image Processing Lab Report</data>
+  <data key="d1">event</data>
+  <data key="d2">A lab report detailing the process of cell image segmentation using digital image processing techniques.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Cell Image Segmentation">
+  <data key="d0">Cell Image Segmentation</data>
+  <data key="d1">category</data>
+  <data key="d2">The process of identifying and separating individual cells from a digital image.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="rgb2gray">
+  <data key="d0">rgb2gray</data>
+  <data key="d1">category</data>
+  <data key="d2">A MATLAB function used for grayscale conversion of images.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="CLAHE (Contrast Limited Adaptive Histogram Equalization)">
+  <data key="d0">CLAHE (Contrast Limited Adaptive Histogram Equalization)</data>
+  <data key="d1">category</data>
+  <data key="d2">An image processing technique used for contrast enhancement.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Otsu's method">
+  <data key="d0">Otsu's method</data>
+  <data key="d1">category</data>
+  <data key="d2">A thresholding method that assumes a bimodal histogram distribution.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Adaptive thresholding">
+  <data key="d0">Adaptive thresholding</data>
+  <data key="d1">category</data>
+  <data key="d2">A thresholding method that adjusts thresholds based on local intensity.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Morphological opening">
+  <data key="d0">Morphological opening</data>
+  <data key="d1">category</data>
+  <data key="d2">A morphological operation used for removing small objects from a binary image.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Morphological closing">
+  <data key="d0">Morphological closing</data>
+  <data key="d1">category</data>
+  <data key="d2">A morphological operation used for filling holes in a binary image.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Connected component analysis">
+  <data key="d0">Connected component analysis</data>
+  <data key="d1">category</data>
+  <data key="d2">An algorithm used to identify and label connected regions in a binary image.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Binary masks">
+  <data key="d0">Binary masks</data>
+  <data key="d1">category</data>
+  <data key="d2">Images that highlight the regions of interest (ROIs) in the cell images.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Regions of Interest (ROI)">
+  <data key="d0">Regions of Interest (ROI)</data>
+  <data key="d1">category</data>
+  <data key="d2">Specific areas within an image that are of interest for analysis, in this case, the areas containing cells.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Grayscale Conversion">
+  <data key="d0">Grayscale Conversion</data>
+  <data key="d1">category</data>
+  <data key="d2">The process of converting a color image to a grayscale image.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Histogram Analysis">
+  <data key="d0">Histogram Analysis</data>
+  <data key="d1">category</data>
+  <data key="d2">The process of analyzing the distribution of pixel intensities in an image.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Contrast Normalization">
+  <data key="d0">Contrast Normalization</data>
+  <data key="d1">category</data>
+  <data key="d2">The process of adjusting the contrast in an image to improve visibility.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Thresholding">
+  <data key="d0">Thresholding</data>
+  <data key="d1">category</data>
+  <data key="d2">The process of converting a grayscale image to a binary image by setting a threshold value.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Morphological Operations">
+  <data key="d0">Morphological Operations</data>
+  <data key="d1">category</data>
+  <data key="d2">Image processing techniques that modify the shape and size of objects in an image.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Connected Component Labeling">
+  <data key="d0">Connected Component Labeling</data>
+  <data key="d1">category</data>
+  <data key="d2">The process of identifying and labeling connected regions in a binary image.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<node id="Visual Inspection">
+  <data key="d0">Visual Inspection</data>
+  <data key="d1">category</data>
+  <data key="d2">The process of manually inspecting the results of image processing to assess quality.</data>
+  <data key="d3">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d4">unknown_source</data>
+</node>
+<edge source="MIVIA HEp-2 Image dataset" target="Lab Instructor">
+  <data key="d5">16.0</data>
+  <data key="d6">The Lab Instructor provided the MIVIA HEp-2 Image dataset to the students for the lab.&lt;SEP&gt;The lab instructor provided the MIVIA HEp-2 Image dataset to the students.</data>
+  <data key="d7">data provision, instruction&lt;SEP&gt;instructor, resource</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="MIVIA HEp-2 Image dataset" target="Cell Image Segmentation">
+  <data key="d5">9.0</data>
+  <data key="d6">The dataset was used as input for the cell image segmentation process.</data>
+  <data key="d7">data source, process input</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="MATLAB" target="Grayscale Conversion">
+  <data key="d5">9.0</data>
+  <data key="d6">MATLAB's rgb2gray function was used for grayscale conversion of the images.</data>
+  <data key="d7">software application, image processing</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="MATLAB" target="rgb2gray">
+  <data key="d5">9.0</data>
+  <data key="d6">MATLAB provides the rgb2gray function for image processing.</data>
+  <data key="d7">software, function</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="MATLAB" target="CLAHE (Contrast Limited Adaptive Histogram Equalization)">
+  <data key="d5">8.0</data>
+  <data key="d6">MATLAB likely provides functions or toolboxes to implement CLAHE.</data>
+  <data key="d7">software, algorithm</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Digital Image Processing Lab Report" target="Cell Image Segmentation">
+  <data key="d5">10.0</data>
+  <data key="d6">The lab report documents the process of cell image segmentation.</data>
+  <data key="d7">report topic, process documentation</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Cell Image Segmentation" target="Grayscale Conversion">
+  <data key="d5">8.0</data>
+  <data key="d6">Grayscale conversion is a step in the cell image segmentation process.</data>
+  <data key="d7">process step, image processing</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Cell Image Segmentation" target="Histogram Analysis">
+  <data key="d5">7.0</data>
+  <data key="d6">Histogram analysis informs decisions in the cell image segmentation process.</data>
+  <data key="d7">process step, image analysis</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Cell Image Segmentation" target="Contrast Normalization">
+  <data key="d5">8.0</data>
+  <data key="d6">Contrast normalization is a step in the cell image segmentation process to improve image quality.</data>
+  <data key="d7">process step, image enhancement</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Cell Image Segmentation" target="Thresholding">
+  <data key="d5">9.0</data>
+  <data key="d6">Thresholding is a crucial step in segmenting cells from the background.</data>
+  <data key="d7">process step, image segmentation</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Cell Image Segmentation" target="Morphological Operations">
+  <data key="d5">8.0</data>
+  <data key="d6">Morphological operations refine the segmentation results by removing noise and artifacts.</data>
+  <data key="d7">process step, image cleaning</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Cell Image Segmentation" target="Connected Component Labeling">
+  <data key="d5">9.0</data>
+  <data key="d6">Connected component labeling identifies individual segmented cells.</data>
+  <data key="d7">process step, cell identification</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Cell Image Segmentation" target="Visual Inspection">
+  <data key="d5">7.0</data>
+  <data key="d6">Visual inspection is used to evaluate the accuracy and quality of the cell segmentation.</data>
+  <data key="d7">process evaluation, quality control</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Otsu's method" target="Thresholding">
+  <data key="d5">9.0</data>
+  <data key="d6">Otsu's method is a technique used in thresholding.</data>
+  <data key="d7">algorithm, process</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Adaptive thresholding" target="Thresholding">
+  <data key="d5">9.0</data>
+  <data key="d6">Adaptive thresholding is another technique used in thresholding.</data>
+  <data key="d7">algorithm, process</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Morphological opening" target="Morphological Operations">
+  <data key="d5">10.0</data>
+  <data key="d6">Morphological opening is a type of morphological operation.</data>
+  <data key="d7">technique, category</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Morphological closing" target="Morphological Operations">
+  <data key="d5">10.0</data>
+  <data key="d6">Morphological closing is a type of morphological operation.</data>
+  <data key="d7">technique, category</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Connected component analysis" target="Connected Component Labeling">
+  <data key="d5">10.0</data>
+  <data key="d6">Connected component analysis is the underlying algorithm for connected component labeling.</data>
+  <data key="d7">algorithm, process</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+<edge source="Binary masks" target="Regions of Interest (ROI)">
+  <data key="d5">9.0</data>
+  <data key="d6">Binary masks define the regions of interest (ROIs) in the images.</data>
+  <data key="d7">mask, region</data>
+  <data key="d8">chunk-f06378ce6eb0c43b3f78475cd0440f67</data>
+  <data key="d9">unknown_source</data>
+</edge>
+</graph></graphml>
