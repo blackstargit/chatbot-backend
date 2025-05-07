@@ -46,8 +46,8 @@ try:
     app.state.rag = rag
     
     # Insert data from the combined.txt file
-    # scrape_site_from_sitemap("https://www.alphabase.co")
-    insert_data(rag, "./mock.txt")
+    scrape_site_from_sitemap("https://www.alphabase.co")
+    insert_data(rag, "./db/www.alphabase.co/combined.txt")
 
     print("✅ LightRAG initialized successfully")
 except Exception as e:
