@@ -46,38 +46,6 @@ This FastAPI application uses LightRAG for RAG capabilities and Supabase for dat
    docker-compose down
    ```
 
-## Back4App Deployment Guide
-
-### Prerequisites
-- Back4App account
-- Back4App CLI installed
-- Git
-
-### Steps to Deploy
-
-1. **Login to Back4App CLI**
-   ```
-   b4a login
-   ```
-
-2. **Initialize Back4App project in this directory**
-   ```
-   b4a new
-   ```
-
-3. **Deploy the application**
-   ```
-   b4a deploy
-   ```
-
-4. **Set environment variables**
-   After deployment, set these environment variables in the Back4App dashboard:
-   - SUPABASE_URL
-   - SUPABASE_KEY
-   - GEMINI_API_KEY
-   - PORT (set by Back4App)
-   - HOST (set by Back4App)
-
 ## Important Notes
 - The application uses local file storage for RAG data. For production, consider using a persistent storage solution.
 - Make sure Supabase is properly configured and accessible from your deployment environment.

@@ -123,8 +123,6 @@ The JWT token must be obtained using a valid API key. The token is valid for 30 
 - **Path Parameters**:
   - `embed_id`: The ID of the embed configuration
   - `session_id`: The specific session ID
-- **Headers**:
-  - `Authorization`: Bearer your.jwt.token
 - **Response**:
   ```json
   {
@@ -146,8 +144,6 @@ The JWT token must be obtained using a valid API key. The token is valid for 30 
 - **Path Parameters**:
   - `embed_id`: The ID of the embed configuration
   - `session_id`: The specific session ID to delete
-- **Headers**:
-  - `Authorization`: Bearer your.jwt.token
 - **Response**: Empty response with status code 200
 
 ## Stream Chat
@@ -159,8 +155,6 @@ The JWT token must be obtained using a valid API key. The token is valid for 30 
 - **Description**: Stream chat with the RAG system.
 - **Path Parameters**:
   - `embed_id`: The ID of the embed configuration
-- **Headers**:
-  - `Authorization`: Bearer your.jwt.token
 - **Request Body**:
   ```json
   {
