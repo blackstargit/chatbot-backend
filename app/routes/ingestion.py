@@ -44,12 +44,10 @@ async def ingest(request: Request, file: UploadFile = File(...), _auth: bool = D
     # TODO: add a index or check to avoid double adding a document
     insert_data(request.app.state.rag, f"db/documents/{file.filename}")
 
-    query = request.app.state.rag.query("List my resume?")
     return JSONResponse(content={
         "type": "document",
         "file_name": file.filename,
         "file_type": file_type,
-        "query": query
     })
 
 
@@ -61,11 +59,9 @@ async def ingest(request: Request, url: str, _auth: bool = Depends(authenticate_
     if os.path.exists(f"{folder}/combined.txt"):
         insert_data(request.app.state.rag, f"{folder}/combined.txt")
         
-        query = request.app.state.rag.query("List my resume?")
         return JSONResponse(content={
             "type": "website",
             "url": url,
-            "query": query
         })
 
 
