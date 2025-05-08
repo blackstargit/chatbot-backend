@@ -13,7 +13,7 @@ async def get_chat_history(
     background_tasks: BackgroundTasks,
     embed_id: str = Path(..., title="The ID of the embed configuration"),
     session_id: str = Path(..., title="The specific session ID"),
-    _auth: bool = Depends(authenticate_request)
+    # _auth: bool = Depends(authenticate_request)
 ):
     frontend_url = request.headers.get("origin") or request.headers.get("referer")
     print(f"Received get history request for embed_id: {embed_id}, session_id: {session_id} from {frontend_url}")
@@ -33,10 +33,9 @@ async def get_chat_history(
 
 @router.delete("/embed/{embed_id}/{session_id}", status_code=status.HTTP_200_OK)
 async def delete_chat_history(
-    request: Request,
     embed_id: str = Path(..., title="The ID of the embed configuration"),
     session_id: str = Path(..., title="The specific session ID to delete"),
-    _auth: bool = Depends(authenticate_request)
+    # _auth: bool = Depends(authenticate_request)
 ):
     print(f"Received delete history request for embed_id: {embed_id}, session_id: {session_id}")
     

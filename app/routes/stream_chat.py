@@ -19,7 +19,7 @@ async def stream_chat_rag(
     request: Request,
     embed_id: str = Path(..., title="The ID of the embed configuration"),
     raw_body: str = Body(...),
-    _auth: bool = Depends(authenticate_request)   # <-- Injected AUTH here
+    # _auth: bool = Depends(authenticate_request)   # <-- Injected AUTH here
 ):
     request_uuid = str(uuid.uuid4()) + "1fd" # Unique ID for this request handling instance
     print(f"Request ID: {request_uuid}")
