@@ -65,16 +65,6 @@ async def stream_chat_rag(
             "close": True,
             "error": True
         }
-    elif "help" in user_message_text.lower():
-        print("Processing help request")
-        early_exit_data = {
-            "uuid": str(uuid.uuid4()),
-            "type": "textResponse",
-            "textResponse": "I'm here to help answer questions about your documents. What would you like to know?",
-            "sources": [],
-            "close": True,
-            "error": False
-        }
     
     # If we have early exit data, return it as a non-streaming response
     if early_exit_data:
