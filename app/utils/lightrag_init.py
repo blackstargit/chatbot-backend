@@ -170,7 +170,7 @@ async def stream_query_rag(rag, query_text):
             print("Contains __iter__")
             for chunk in result:
                 yield chunk
-                await asyncio.sleep(0.001)  # Small delay between chunks
+                await asyncio.sleep(0.005)  # Small delay between chunks
         else:
             # If it's a regular result, simulate streaming by words
             print("Fallback to simulated streaming by words")
@@ -179,7 +179,7 @@ async def stream_query_rag(rag, query_text):
             
             for word in words:
                 yield word + " "
-                await asyncio.sleep(0.001)  # Simulate streaming with small delay
+                await asyncio.sleep(0.005)  # Simulate streaming with small delay
     except Exception as e:
         print(f"Error streaming query from RAG: {str(e)}")
         yield f"Error processing your query: {str(e)}"

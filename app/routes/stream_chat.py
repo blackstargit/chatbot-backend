@@ -43,14 +43,11 @@ async def stream_chat_rag(
 
     user_message_uuid = str(uuid.uuid4())
     user_message_entry = {"role": "user", "content": user_message_text, "uuid": user_message_uuid}
-    
-    # Save user message to Supabase
-    await save_message(session_id, user_message_entry)
-    print(f"Saved user message for session {session_id} with UUID: {user_message_uuid}")
+
+    assistant_message_uuid = str(uuid.uuid4())
 
     # --- Check if RAG is initialized ---
     rag = request.app.state.rag
-    assistant_response_text = None
     early_exit_data = None # Store data for early exit chunks
     sources = []
     
@@ -75,6 +72,10 @@ async def stream_chat_rag(
         if assistant_message_text:
             assistant_message_entry = {"role": "assistant", "content": assistant_message_text, "uuid": assistant_message_uuid}
             
+            # Save user message to Supabase
+            await save_message(session_id, user_message_entry)
+            print(f"Saved user message for session {session_id} with UUID: {user_message_uuid}")
+
             # Save assistant message to Supabase
             await save_message(session_id, assistant_message_entry)
             print(f"Saved assistant response for session {session_id} (early exit) with UUID: {assistant_message_uuid}")
@@ -87,38 +88,6 @@ async def stream_chat_rag(
             "Cache-Control": "no-cache", "Connection": "keep-alive", "Access-Control-Allow-Origin": "*",
         })
     
-    # --- Main Chat Flow ---
-    if not early_exit_data:
-        try:
-            print(f"Querying LightRAG with: {user_message_text}")
-            
-            rag_response = query_rag(rag, user_message_text)
-            
-            if hasattr(rag_response, 'sources') and rag_response.sources:
-                for source in rag_response.sources:
-                    sources.append({
-                        "text": source.text[:200] + "...",
-                        "title": source.metadata.get("title", "Document"),
-                        "url": source.metadata.get("url", None)
-                    })
-            
-            if isinstance(rag_response, str):
-                assistant_response_text = rag_response
-            else:
-                assistant_response_text = str(rag_response)
-                
-            print(f"Got complete response from LightRAG for history: {assistant_response_text[:100]}...")
-            
-        except Exception as e:
-            print(f"Error querying RAG: {str(e)}")
-            assistant_response_text = f"I encountered an error while processing your query. Please try again or rephrase your question. Error: {str(e)}"
-    
-    assistant_message_uuid = str(uuid.uuid4())
-    
-    assistant_message_entry = {"role": "assistant", "content": assistant_response_text, "uuid": assistant_message_uuid}
-    
-    await save_message(session_id, assistant_message_entry)
-    print(f"Saved assistant response for session {session_id} (streaming) with UUID: {assistant_message_uuid}")
 
     async def rag_stream_generator():
         start_data = {"uuid": assistant_message_uuid, "type": "start", "error": False, "sources": [], "textResponse": None, "close": False}
@@ -155,9 +124,6 @@ async def stream_chat_rag(
                 "error": True,
             }
             yield format_sse_chunk(error_chunk)
-            
-            if not accumulated_text and assistant_response_text:
-                accumulated_text = assistant_response_text
 
         complete_data = {
             "uuid": assistant_message_uuid,
@@ -170,10 +136,14 @@ async def stream_chat_rag(
         yield format_sse_chunk(complete_data)
         print(f"Finished streaming RAG response for embed_id: {embed_id}, session: {session_id}")
         
-        if accumulated_text and accumulated_text != assistant_response_text:
-            print("Updating history with actual streamed text")
-            updated_message = {"role": "assistant", "content": accumulated_text, "uuid": assistant_message_uuid}
-            await save_message(session_id, updated_message, update=True)
+        # Save user message to Supabase
+        await save_message(session_id, user_message_entry)
+        print(f"Saved user message for session {session_id} with UUID: {user_message_uuid}")
+
+        assistant_message_entry = {"role": "assistant", "content": accumulated_text, "uuid": assistant_message_uuid}
+        await save_message(session_id, assistant_message_entry)
+        print(f"Saved assistant response for session {session_id} (streaming) with UUID: {assistant_message_uuid}")
+
 
     return StreamingResponse(rag_stream_generator(), media_type="text/event-stream", headers={
         "Cache-Control": "no-cache", "Connection": "keep-alive", "Access-Control-Allow-Origin": "*",
