@@ -46,12 +46,15 @@ def scrape_site_from_sitemap(base_url: str):
 
     os.makedirs(domain_folder, exist_ok=True)
     urls = []
+
     sitemap_url = f"{base_url.rstrip('/')}/sitemap.xml"
     try:
         urls = get_sitemap_urls(sitemap_url)
     except:
         print("⚠️ Unable to fetch sitemap.")
-        urls = [f"{base_url.rstrip('/')}"]
+
+    if not urls:
+        urls = [base_url]
 
     total_urls = len(urls)
     already_scraped = 0
