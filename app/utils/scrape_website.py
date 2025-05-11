@@ -45,20 +45,20 @@ def scrape_site_from_sitemap(base_url: str):
     domain_folder = f'db/{parsed_url.netloc.replace(":", "_")}'
 
     os.makedirs(domain_folder, exist_ok=True)
-
+    urls = []
     sitemap_url = f"{base_url.rstrip('/')}/sitemap.xml"
     try:
         urls = get_sitemap_urls(sitemap_url)
     except:
         print("⚠️ Unable to fetch sitemap.")
-        return
+        urls = [f"{base_url.rstrip('/')}"]
 
     total_urls = len(urls)
     already_scraped = 0
     newly_scraped = 0
     failed = 0
 
-    print(f"📦 Found {total_urls} URLs in sitemap.")
+    print(f"📦 Found {total_urls} URLs in sitemap, {urls}")
 
     for url in tqdm(urls, desc="Scraping pages"):
         file_path = get_filename_from_url(domain_folder, url)
