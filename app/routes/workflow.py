@@ -14,10 +14,9 @@ from app.utils.supabase import save_message
 router = APIRouter()
 
 # Replace with your actual n8n webhook URL
-N8N_WEBHOOK_URL = "YOUR_N8N_INSTANCE_URL/webhook/d9716009-b1af-40c1-af88-f04d95123774"
+N8N_WEBHOOK_URL = "https://n8n.alphabase.co/webhook/alphabot/chat"
 
-
-@router.post("/embed/{embed_id}/chat")
+@router.post("/embed/{embed_id}/stream-chat")
 async def chat_rag(
     request: Request,
     embed_id: str = Path(..., title="The ID of the embed configuration"),

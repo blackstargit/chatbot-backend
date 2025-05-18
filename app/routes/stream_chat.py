@@ -5,7 +5,7 @@ from fastapi import APIRouter, Path, Body, HTTPException, status, Request, Depen
 from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 
-from app.utils.auth import authenticate_request
+# from app.utils.auth import authenticate_request
 
 from app.types.types import StreamChatRequest
 from app.utils.utils import format_sse_chunk

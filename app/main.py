@@ -42,19 +42,20 @@ app.state.frontend_url = None
 app.state.rag = None
 
 # Initialize LightRAG
-try:
-    rag = asyncio.run(initialize_rag())
-    app.state.rag = rag
+@app.on_event("startup")
+async def initialize_lightrag():
+    try:
+        rag = asyncio.run(initialize_rag())
+        app.state.rag = rag
+
+        # insert_data(rag, "./mock.txt")
+    except Exception as e:
+        print(f"❌ Error initializing LightRAG: {str(e)}")
+
     
     # Insert data from the combined.txt file
-    scrape_site_from_sitemap("https://www.alphabase.co")
-    insert_data(rag, "./db/www.alphabase.co/combined.txt")
-
-    # insert_data(rag, "./mock.txt")
-
-    print("✅ LightRAG initialized successfully")
-except Exception as e:
-    print(f"❌ Error initializing LightRAG: {str(e)}")
+    # scrape_site_from_sitemap("https://www.alphabase.co")
+    # insert_data(rag, "./db/www.alphabase.co/combined.txt")
 
 # Initialize Supabase tables if they don't exist
 @app.on_event("startup")
