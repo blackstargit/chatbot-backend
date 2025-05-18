@@ -4,11 +4,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers from modular files
-from app.routes.stream_chat import router as stream_chat_router
+# from app.routes.stream_chat import router as stream_chat_router
 from app.routes.history import router as history_router
 from app.routes.widget import router as widget_router
 from app.routes.ingestion import router as ingestion_router
 from app.routes.query import router as query_router
+from app.routes.workflow import router as workflow_router
 
 # Import Supabase client
 from app.utils.supabase import get_supabase_client
@@ -66,7 +67,8 @@ async def initialize_supabase():
         print(f"❌ Error connecting to Supabase: {str(e)}")
 
 
-app.include_router(stream_chat_router)
+# app.include_router(stream_chat_router)
+app.include_router(workflow_router)
 app.include_router(history_router)
 app.include_router(widget_router)
 app.include_router(ingestion_router)
