@@ -60,9 +60,6 @@ except Exception as e:
 async def initialize_supabase():
     try:
         supabase = await get_supabase_client()
-        
-        # Check if users table exists, if not create it
-        # Note: This is a simplified approach. In production, you would use proper migrations.
         supabase.table("chat_histories").select("id").limit(1).execute()
         print("✅ Supabase connection successful")
     except Exception as e:
