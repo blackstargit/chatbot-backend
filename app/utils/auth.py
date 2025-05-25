@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -24,8 +24,8 @@ def create_jwt_token(api_key: str) -> str:
     """
     payload = {
         "sub": api_key,
-        "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(days=TOKEN_EXPIRE_DAYS)
+        "iat": datetime.now(timezone.utc),
+        "exp": datetime.now(timezone.utc) + timedelta(days=TOKEN_EXPIRE_DAYS)
     }
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 

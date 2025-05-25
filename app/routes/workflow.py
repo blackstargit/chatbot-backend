@@ -7,7 +7,7 @@ from pydantic import ValidationError, BaseModel
 import httpx
 from typing import AsyncGenerator, Dict, Any
 from app.utils.utils import format_sse_chunk
-
+import os
 
 from app.utils.auth import authenticate_request
 from app.types.types import StreamChatRequest
@@ -16,11 +16,11 @@ from app.utils.supabase import save_message
 router = APIRouter()
 
 # Replace with your actual n8n webhook URL
-N8N_WEBHOOK_URL = "https://n8n.alphabase.co/webhook/alphabot/chat"
+n8n_address = os.getenv('N8N_ADDRESS')
+N8N_WEBHOOK_URL =   f"{n8n_address}/webhook/alphabot/chat"
 
 @router.post("/embed/{embed_id}/stream-chat")
 async def chat_rag(
-    request: Request,
     embed_id: str = Path(..., title="The ID of the embed configuration"),
     raw_body: str = Body(...),
     # _auth: bool = Depends(authenticate_request),
@@ -79,7 +79,7 @@ async def chat_rag(
 
     try:
         async with httpx.AsyncClient() as client:
-            n8n_response = await client.post(N8N_WEBHOOK_URL, json={"query_text": user_message_text})
+            n8n_response = await client.post(N8N_WEBHOOK_URL, json={"query_text": user_message_text, "session_id": session_id})
             n8n_response.raise_for_status()
             n8n_data = n8n_response.json()
             print(f"Received response from n8n: {n8n_data}")
