@@ -94,7 +94,7 @@ async def chat_rag(
 
         assistant_message_text = n8n_data["output"]
         assistant_message_entry = {"role": "assistant", "content": assistant_message_text, "uuid": assistant_message_uuid}
-        await save_message(session_id, user_message_entry)
+        saved_user_message_data = await save_message(session_id, user_message_entry)
         print(f"Saved user message for session {session_id} with UUID: {user_message_uuid}")
         
         user_message_timestamp = saved_user_message_data.get("created_at") # Get the actual timestamp
