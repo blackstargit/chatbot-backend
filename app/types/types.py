@@ -5,7 +5,7 @@ import datetime
 # --- Pydantic Models ---
 class StreamChatRequest(BaseModel):
     session_id: str = Field(..., alias="sessionId")
-    client_user_id: str = Field(..., examples=["client_user_uuid_123"])
+    client_user_id: str = Field(..., alias="clientUserId")
     message: str
     prompt: Optional[str] = Field(None, alias="promptOverride")
     model: Optional[str] = Field(None, alias="modelOverride")
