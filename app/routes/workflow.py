@@ -11,7 +11,7 @@ import os
 
 from app.utils.auth import authenticate_request
 from app.types.types import StreamChatRequest
-from app.utils.supabase import save_message
+from app.utils.supabase import save_message, ensure_user_chat_record, get_supabase_client
 
 router = APIRouter()
 
@@ -53,29 +53,31 @@ async def chat_rag(
 
     session_id = request_data.session_id
     user_message_text = request_data.message
+    client_user_id = request_data.client_user_id
     user_message_uuid = str(uuid.uuid4())
     user_message_entry = {"role": "user", "content": user_message_text, "uuid": user_message_uuid}
     assistant_message_uuid = str(uuid.uuid4())
-    n8n_available = True
+    # n8n_available = True
+    saved_user_message_data = None
 
-    # Handle Early Exits
-    if not n8n_available:
-        print("Error: n8n is unavailable")
-        early_exit_data = {
-            "uuid": str(uuid.uuid4()),
-            "type": "textResponse",
-            "textResponse": "I'm sorry, the chat service is currently unavailable. Please try again later.",
-            "sources": [],
-            "close": True,
-            "error": True,
-        }
-        await save_message(session_id, user_message_entry)
-        await save_message(session_id,  {"role": "assistant", "content": early_exit_data["textResponse"], "uuid": assistant_message_uuid})
-        async def early_exit_generator():
-            yield json.dumps(early_exit_data)
-        return StreamingResponse(early_exit_generator, media_type="text/event-stream", headers={
-            "Cache-Control": "no-cache", "Connection": "keep-alive", "Access-Control-Allow-Origin": "*",
-        })
+    # # Handle Early Exits
+    # if not n8n_available:
+    #     print("Error: n8n is unavailable")
+    #     early_exit_data = {
+    #         "uuid": str(uuid.uuid4()),
+    #         "type": "textResponse",
+    #         "textResponse": "I'm sorry, the chat service is currently unavailable. Please try again later.",
+    #         "sources": [],
+    #         "close": True,
+    #         "error": True,
+    #     }
+    #     await save_message(session_id, user_message_entry)
+    #     await save_message(session_id,  {"role": "assistant", "content": early_exit_data["textResponse"], "uuid": assistant_message_uuid})
+    #     async def early_exit_generator():
+    #         yield json.dumps(early_exit_data)
+    #     return StreamingResponse(early_exit_generator, media_type="text/event-stream", headers={
+    #         "Cache-Control": "no-cache", "Connection": "keep-alive", "Access-Control-Allow-Origin": "*",
+    #     })
 
     try:
         async with httpx.AsyncClient() as client:
@@ -94,6 +96,20 @@ async def chat_rag(
         assistant_message_entry = {"role": "assistant", "content": assistant_message_text, "uuid": assistant_message_uuid}
         await save_message(session_id, user_message_entry)
         print(f"Saved user message for session {session_id} with UUID: {user_message_uuid}")
+        
+        user_message_timestamp = saved_user_message_data.get("created_at") # Get the actual timestamp
+        
+        supabase_client = await get_supabase_client() # Get Supabase client for the next operation
+        await ensure_user_chat_record(
+            supabase_client=supabase_client,
+            client_user_id=client_user_id,
+            embed_id=embed_id,
+            session_id=session_id,
+            first_message_content=user_message_text,
+            message_timestamp=user_message_timestamp
+        )
+
+
         await save_message(session_id, assistant_message_entry)
         print(f"Saved assistant response for session {session_id} with UUID: {assistant_message_uuid}")
 

@@ -9,7 +9,7 @@ from pydantic import ValidationError
 
 from app.types.types import StreamChatRequest
 from app.utils.utils import format_sse_chunk
-from app.utils.supabase import save_message
+from app.utils.supabase import save_message, ensure_user_chat_record, get_supabase_client
 from app.utils.lightrag_init import query_rag, stream_query_rag
 
 router = APIRouter()
@@ -40,6 +40,7 @@ async def stream_chat_rag(
 
     session_id = request_data.session_id
     user_message_text = request_data.message
+    client_user_id = request_data.client_user_id
 
     user_message_uuid = str(uuid.uuid4())
     user_message_entry = {"role": "user", "content": user_message_text, "uuid": user_message_uuid}
@@ -90,15 +91,20 @@ async def stream_chat_rag(
     
 
     async def rag_stream_generator():
+        nonlocal sources
         start_data = {"uuid": assistant_message_uuid, "type": "start", "error": False, "sources": [], "textResponse": None, "close": False}
         yield format_sse_chunk(start_data)
-        await asyncio.sleep(0.2)
+        # await asyncio.sleep(0.2)
 
         accumulated_text = ""
         try:
             async for chunk in stream_query_rag(rag, user_message_text):
                 if isinstance(chunk, str):
                     chunk_text = chunk
+                elif isinstance(chunk, dict) and "text" in chunk:
+                    chunk_text = chunk["text"]
+                    if "sources" in chunk and chunk["sources"]: # Hypothetical: if stream_query_rag yields sources mid-stream
+                        sources.extend(chunk["sources"]) # Accumulate sources
                 else:
                     chunk_text = str(chunk)
                 
@@ -136,9 +142,23 @@ async def stream_chat_rag(
         yield format_sse_chunk(complete_data)
         print(f"Finished streaming RAG response for embed_id: {embed_id}, session: {session_id}")
         
+        saved_user_message_data = None
+
         # Save user message to Supabase
-        await save_message(session_id, user_message_entry)
+        saved_user_message_data = await save_message(session_id, user_message_entry)
         print(f"Saved user message for session {session_id} with UUID: {user_message_uuid}")
+
+        user_message_timestamp = saved_user_message_data.get("created_at") # Get the actual timestamp
+        
+        supabase_client = await get_supabase_client() # Get Supabase client for the next operation
+        await ensure_user_chat_record(
+            supabase_client=supabase_client,
+            client_user_id=client_user_id,
+            embed_id=embed_id,
+            session_id=session_id,
+            first_message_content=user_message_text,
+            message_timestamp=user_message_timestamp
+        )
 
         assistant_message_entry = {"role": "assistant", "content": accumulated_text, "uuid": assistant_message_uuid}
         await save_message(session_id, assistant_message_entry)

@@ -10,6 +10,7 @@ from app.routes.widget import router as widget_router
 from app.routes.ingestion import router as ingestion_router
 from app.routes.query import router as query_router
 from app.routes.workflow import router as workflow_router
+from app.routes.user_chats import router as user_chats_router
 
 # Import Supabase client
 from app.utils.supabase import get_supabase_client
@@ -74,6 +75,7 @@ app.include_router(history_router)
 app.include_router(widget_router)
 app.include_router(ingestion_router)
 app.include_router(query_router)
+app.include_router(user_chats_router)
 
 if __name__ == "__main__":
     import uvicorn
