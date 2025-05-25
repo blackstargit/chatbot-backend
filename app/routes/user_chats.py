@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Path, HTTPException, status
+from fastapi import APIRouter, Path, HTTPException, status, Query
 from typing import Dict, Any
 from app.types.types import UserChatsResponse
 
@@ -15,6 +15,8 @@ router = APIRouter()
 async def list_user_chats(
     embed_id: str = Path(..., title="The ID of the embed configuration", min_length=1),
     client_user_id: str = Path(..., title="The unique ID of the client user", min_length=1),
+    limit: int = Query(20, ge=1, le=100, description="Number of chat sessions to return"),
+    offset: int = Query(0, ge=0, description="Offset for pagination"),
     # auth_result: bool = Depends(authenticate_request) # Uncomment if auth is needed
 ):
     """
@@ -27,7 +29,7 @@ async def list_user_chats(
 
     try:
         chat_sessions_data = await fetch_user_chat_sessions(
-            supabase_client, client_user_id, embed_id
+            supabase_client, client_user_id, embed_id, limit, offset
         )
         
         return UserChatsResponse(chats=chat_sessions_data)

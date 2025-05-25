@@ -121,7 +121,7 @@ async def ensure_user_chat_record(
 
     # Check if a record already exists to avoid unnecessary ON CONFLICT write attempts
     # and to handle the logic more explicitly.
-    existing_check_result = await supabase_client.table(USER_CHATS_TABLE) \
+    existing_check_result = supabase_client.table(USER_CHATS_TABLE) \
         .select("id") \
         .eq("client_user_id", client_user_id) \
         .eq("embed_id", embed_id) \
@@ -156,7 +156,7 @@ async def ensure_user_chat_record(
     
     try:
         # The unique constraint on (client_user_id, embed_id, session_id) will prevent duplicates.
-        result = await supabase_client.table(USER_CHATS_TABLE).insert(insert_data).execute()
+        result = supabase_client.table(USER_CHATS_TABLE).insert(insert_data).execute()
 
         if result.data and len(result.data) > 0:
             print(f"Successfully created user_chat record with ID: {result.data[0].get('id')}")
@@ -191,7 +191,7 @@ async def fetch_user_chat_sessions(
     Includes the content and role of the last message in each session.
     """
     try:
-        user_chats_response = await supabase_client.table("user_chats") \
+        user_chats_response = supabase_client.table(USER_CHATS_TABLE) \
             .select("session_id, title, first_message_preview, last_interacted_at") \
             .eq("client_user_id", client_user_id) \
             .eq("embed_id", embed_id) \
@@ -206,7 +206,7 @@ async def fetch_user_chat_sessions(
 
         sessions_data = []
         for chat in user_chats_response.data:
-            last_message_response = await supabase_client.table("chat_histories") \
+            last_message_response = supabase_client.table("chat_histories") \
                 .select("content, role") \
                 .eq("session_id", chat["session_id"]) \
                 .order("created_at", desc=True) \
