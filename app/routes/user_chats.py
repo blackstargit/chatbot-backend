@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Path, HTTPException, status, Query
-from typing import Dict, Any
 from app.types.types import UserChatsResponse
 
-from app.utils.supabase import get_supabase_client, fetch_user_chat_sessions
+from app.utils.supabase import fetch_user_chat_sessions
 
 router = APIRouter()
 
@@ -25,11 +24,9 @@ async def list_user_chats(
     """
     print(f"Received request for /chats: embed_id={embed_id}, client_user_id={client_user_id}")
     
-    supabase_client = await get_supabase_client() # Using the utility function
-
     try:
         chat_sessions_data = await fetch_user_chat_sessions(
-            supabase_client, client_user_id, embed_id, limit, offset
+            client_user_id, embed_id, limit, offset
         )
         
         return UserChatsResponse(chats=chat_sessions_data)

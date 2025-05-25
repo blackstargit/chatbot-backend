@@ -24,6 +24,8 @@ CHAT_HISTORY_TABLE = "chat_histories"
 LEAD_CAPTURE_TABLE = "lead_capture_form"
 USER_CHATS_TABLE = "user_chats" # Define the new table name
 
+supabase: Client = create_client(supabase_url, supabase_key)
+
 async def get_supabase_client() -> Client:
     """
     Get a Supabase client instance for async operations.
@@ -53,8 +55,6 @@ async def save_message(session_id: str, message: Dict[str, Any], update: bool = 
         "uuid": message["uuid"]
     }
 
-    supabase: Client = get_supabase_client()
-    
     if update:
         # Update the existing message with the same UUID
         result = supabase.table(CHAT_HISTORY_TABLE)\
@@ -90,7 +90,6 @@ async def save_message(session_id: str, message: Dict[str, Any], update: bool = 
             print(f"Lead info found in message {message['uuid']}: Name='{detected_name}', Email='{detected_email}', Phone='{detected_phone}'")
             try:
                 await _save_detected_lead_info(
-                    supabase,
                     session_id,
                     message["uuid"],
                     detected_name,
@@ -105,7 +104,6 @@ async def save_message(session_id: str, message: Dict[str, Any], update: bool = 
 
 
 async def ensure_user_chat_record(
-    supabase_client: Client, # Expecting an already initialized client
     client_user_id: str,
     embed_id: str,
     session_id: str,
@@ -121,7 +119,7 @@ async def ensure_user_chat_record(
 
     # Check if a record already exists to avoid unnecessary ON CONFLICT write attempts
     # and to handle the logic more explicitly.
-    existing_check_result = supabase_client.table(USER_CHATS_TABLE) \
+    existing_check_result = supabase.table(USER_CHATS_TABLE) \
         .select("id") \
         .eq("client_user_id", client_user_id) \
         .eq("embed_id", embed_id) \
@@ -156,7 +154,7 @@ async def ensure_user_chat_record(
     
     try:
         # The unique constraint on (client_user_id, embed_id, session_id) will prevent duplicates.
-        result = supabase_client.table(USER_CHATS_TABLE).insert(insert_data).execute()
+        result = supabase.table(USER_CHATS_TABLE).insert(insert_data).execute()
 
         if result.data and len(result.data) > 0:
             print(f"Successfully created user_chat record with ID: {result.data[0].get('id')}")
@@ -180,7 +178,6 @@ async def ensure_user_chat_record(
             raise # Re-raise other unexpected errors
 
 async def fetch_user_chat_sessions(
-    supabase_client: Client, # Using Any for Supabase client type, replace with actual if available
     client_user_id: str,
     embed_id: str,
     limit: int = 20, # Default limit for pagination
@@ -191,7 +188,7 @@ async def fetch_user_chat_sessions(
     Includes the content and role of the last message in each session.
     """
     try:
-        user_chats_response = supabase_client.table(USER_CHATS_TABLE) \
+        user_chats_response = supabase.table(USER_CHATS_TABLE) \
             .select("session_id, title, first_message_preview, last_interacted_at") \
             .eq("client_user_id", client_user_id) \
             .eq("embed_id", embed_id) \
@@ -206,7 +203,7 @@ async def fetch_user_chat_sessions(
 
         sessions_data = []
         for chat in user_chats_response.data:
-            last_message_response = supabase_client.table("chat_histories") \
+            last_message_response = supabase.table("chat_histories") \
                 .select("content, role") \
                 .eq("session_id", chat["session_id"]) \
                 .order("created_at", desc=True) \
@@ -252,7 +249,6 @@ async def get_session_history(session_id: str) -> List[Dict[str, Any]]:
     Returns:
         List of messages for the session
     """
-    supabase: Client = get_supabase_client()
 
     result = supabase.table(CHAT_HISTORY_TABLE) \
         .select("*") \
@@ -281,7 +277,6 @@ async def delete_session_history(session_id: str) -> bool:
     Returns:
         True if messages were deleted, False if no messages were found
     """
-    supabase: Client = get_supabase_client()
 
     # First check if there are any messages for this session
     count_result = supabase.table(CHAT_HISTORY_TABLE) \
@@ -301,7 +296,6 @@ async def delete_session_history(session_id: str) -> bool:
     return True
 
 async def _save_detected_lead_info(
-    supabase_client: Client,
     session_id: str,
     message_uuid: str,
     detected_name: Optional[str],
@@ -325,7 +319,7 @@ async def _save_detected_lead_info(
     }
 
     try:
-        result = await supabase_client.table(LEAD_CAPTURE_TABLE).insert(lead_data).execute()
+        result = supabase.table(LEAD_CAPTURE_TABLE).insert(lead_data).execute()
         if result.data and len(result.data) > 0:
             print(f"Successfully saved lead with ID: {result.data[0].get('id')} for message {message_uuid}")
     except Exception as e:

@@ -150,9 +150,7 @@ async def stream_chat_rag(
 
         user_message_timestamp = saved_user_message_data.get("created_at") # Get the actual timestamp
         
-        supabase_client = await get_supabase_client() # Get Supabase client for the next operation
         await ensure_user_chat_record(
-            supabase_client=supabase_client,
             client_user_id=client_user_id,
             embed_id=embed_id,
             session_id=session_id,
